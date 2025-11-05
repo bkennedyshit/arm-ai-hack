@@ -1,6 +1,12 @@
 import 'dart:ffi';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
+import 'package:on_device_training_sandbox/models/forward_result.dart';
+import 'package:on_device_training_sandbox/models/model_architecture.dart';
+import 'package:on_device_training_sandbox/models/training_data.dart';
+import 'package:on_device_training_sandbox/models/training_metric.dart';
+import 'package:on_device_training_sandbox/training/optimizer.dart';
 import 'arm_optimizer.dart';
 
 class MobileTrainer {
@@ -184,6 +190,44 @@ class MobileTrainer {
     }
     
     return totalLoss / predictions.length;
+  }
+
+  List<double> _oneHotEncode(int label, int numClasses) {
+    final list = List.filled(numClasses, 0.0);
+    list[label] = 1.0;
+    return list;
+  }
+
+  int _countCorrectPredictions(
+      List<List<double>> predictions, List<int> labels) {
+    int correct = 0;
+    for (int i = 0; i < predictions.length; i++) {
+      final prediction = predictions[i];
+      final label = labels[i];
+      final predictedLabel =
+          prediction.indexOf(prediction.reduce((max, e) => e > max ? e : max));
+      if (predictedLabel == label) {
+        correct++;
+      }
+    }
+    return correct;
+  }
+
+  List<dynamic> _extractActivations(
+      Pointer<Float> outputPtr, int batchSize, int outputSize) {
+    // Placeholder
+    return [];
+  }
+
+  void _backpropagateGradients(List<double> outputGrad,
+      dynamic activations, ModelGradients gradients) {
+    // Placeholder
+  }
+
+  List<List<double>> _randomMatrix(
+      int fanIn, int fanOut, double limit, double limit2) {
+    // Placeholder
+    return [];
   }
 }
 
