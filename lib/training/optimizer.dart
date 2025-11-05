@@ -1,9 +1,7 @@
-import '../models/model_architecture.dart';
-import '../models/dense_layer.dart';
-import '../models/layer.dart';
+import 'package:on_device_training_sandbox/models/model_architecture.dart';
 
 abstract class Optimizer {
-  void updateWeights(List<Layer> layers);
+  void updateWeights(ModelWeights weights, ModelGradients gradients);
 }
 
 class SGDOptimizer extends Optimizer {
@@ -12,21 +10,11 @@ class SGDOptimizer extends Optimizer {
   SGDOptimizer({required this.learningRate});
 
   @override
-  void updateWeights(List<Layer> layers) {
-    for (final layer in layers) {
-      if (layer is DenseLayer) {
-        final denseLayer = layer;
-        // This is a placeholder for a more sophisticated gradient update
-        // final weightGradients = denseLayer.getWeightGradients();
-        // final biasGradients = denseLayer.getBiasGradients();
-
-        // for (int i = 0; i < denseLayer.weights.data.length; i++) {
-        //   denseLayer.weights.data[i] -= learningRate * weightGradients.data[i];
-        // }
-        // for (int i = 0; i < denseLayer.biases.data.length; i++) {
-        //   denseLayer.biases.data[i] -= learningRate * biasGradients.data[i];
-        // }
-      }
+  void updateWeights(ModelWeights weights, ModelGradients gradients) {
+    for (int i = 0; i < weights.layers.length; i++) {
+      weights.layers[i].data
+          .asMap()
+          .forEach((j, value) => value -= learningRate * gradients.layers[i].data[j]);
     }
   }
 }
