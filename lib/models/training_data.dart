@@ -1,13 +1,11 @@
-import 'tensor.dart';
-
 class TrainingData {
-  final Tensor features;
-  final Tensor labels;
+  final List<double> features;
+  final int label;
   final Map<String, dynamic> metadata;
 
-  TrainingData({
-    required this.features,
-    required this.labels,
+  TrainingData(
+    this.features,
+    this.label, {
     this.metadata = const {},
   });
 }
