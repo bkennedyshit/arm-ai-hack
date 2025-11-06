@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'thermal_controller.dart';
 import 'thread_scheduler.dart';
+import '../models/training_data.dart';
 
 class ARMOptimizer {
   late ThermalController _thermalController;

@@ -17,7 +17,7 @@ class _TutorialScreenState extends State<TutorialScreen> {
       content:
           'A neural network is a set of algorithms that process data by layers. '
           'Input layer receives data, hidden layers process it, and the output layer produces results.',
-      icon: Icons.brain,
+      icon: Icons.psychology,
     ),
     Tutorial(
       title: 'Forward Pass',

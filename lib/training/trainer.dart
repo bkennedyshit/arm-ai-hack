@@ -4,10 +4,10 @@ import 'package:on_device_training_sandbox/models/model_architecture.dart';
 import 'package:on_device_training_sandbox/models/training_data.dart';
 import 'package:on_device_training_sandbox/models/training_metric.dart';
 import 'package:on_device_training_sandbox/models/training_config.dart';
-import 'package:on_device_training_sandbox/models/training_result.dart';
+import 'package:on_device_training_sandbox/models/training_result.dart' as tr;
 import 'package:on_device_training_sandbox/training/cross_entropy_loss.dart';
 import 'package:on_device_training_sandbox/models/tensor.dart';
-import 'package:on_device_training_sandbox/training/optimizer.dart';
+import 'package:on_device_training_sandbox/training/optimizer.dart' as opt;
 import 'arm_optimizer.dart';
 
 class MobileTrainer {
@@ -22,7 +22,7 @@ class MobileTrainer {
     _lossFunction = CrossEntropyLoss();
   }
 
-  Future<TrainingResult> trainModel({
+  Future<tr.TrainingResult> trainModel({
     required List<TrainingData> dataset,
     required ModelArchitecture architecture,
     required TrainingConfig config,
@@ -34,7 +34,7 @@ class MobileTrainer {
 
     try {
       final weights = _initializeWeights(architecture);
-      final optimizer = SGDOptimizer(learningRate: config.learningRate);
+      var optimizer = opt.SGDOptimizer(learningRate: config.learningRate);
       final trainingMetrics = <TrainingMetric>[];
       final numClasses = architecture.layers.last;
       
@@ -73,7 +73,7 @@ class MobileTrainer {
             
             if (loss.isNaN || loss.isInfinite) {
               print('Warning: Loss is $loss, reducing learning rate');
-              optimizer = SGDOptimizer(
+              optimizer = opt.SGDOptimizer(
                 learningRate: config.learningRate * 0.1,
               );
               continue;
@@ -87,7 +87,7 @@ class MobileTrainer {
 
             // Backward pass and weight update
             _backwardPass(forwardResult, batch, weights, numClasses);
-            optimizer.updateWeights(weights, ModelGradients.zeros(weights.shape));
+            optimizer.updateWeights(weights, opt.ModelGradients.zeros(weights.shape));
 
             // Check thermal state
             if (await _armOptimizer.shouldThrottle()) {
@@ -116,14 +116,7 @@ class MobileTrainer {
         print('Epoch $epoch: Loss=$avgLoss, Accuracy=$accuracy');
       }
 
-      return TrainingResult(
-        weights: weights,
-        metrics: trainingMetrics,
-        finalAccuracy:
-            trainingMetrics.isNotEmpty ? trainingMetrics.last.accuracy : 0.0,
-        trainingTime: DateTime.now().difference(_trainingStartTime),
-      );
-      return TrainingResult(
+      return tr.TrainingResult(
         weights: weights,
         metrics: trainingMetrics,
         finalAccuracy:
@@ -180,7 +173,10 @@ class MobileTrainer {
           }
         } else {
           // Softmax for output layer
-          output.assignAll(_softmax(output));
+          final softmaxOutput = _softmax(output);
+          for (int i = 0; i < output.length; i++) {
+            output[i] = softmaxOutput[i];
+          }
         }
 
         activation = output;
